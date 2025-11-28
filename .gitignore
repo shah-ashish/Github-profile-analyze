@@ -1,0 +1,36 @@
+# Dependency directories
+node_modules/
+client/node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+build/
+coverage/
+tmp/
+temp/
+
+# Lock files (optional; uncomment if you commit specific locks)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
