@@ -41,8 +41,10 @@ app.post("/compare", async (req, res) => {
             });
         }
 
+    
         const { userA, userB } = req.body;
-
+           console.log(userA," ",userB);
+           
         if (!userA || !userB) {
             return res.status(400).json({ message: "Both userA and userB are required." });
         }
