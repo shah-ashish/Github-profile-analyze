@@ -26,7 +26,10 @@ export async function scrapeGitHubUser(username) {
 
   try {
     console.log(`[INFO] Launching browser for user: ${username}`);
-    browser = await puppeteer.launch({ headless: true });
+    browser = await puppeteer.launch({
+  headless: "new",
+  args: ["--no-sandbox", "--disable-setuid-sandbox"]
+});
     const page = await browser.newPage();
 
     console.log(`[INFO] Navigating to profile: ${profileUrl}`);
