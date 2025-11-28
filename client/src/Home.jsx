@@ -3,7 +3,7 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import "./App.css"; // optional: your tailwind import here
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost";
+
 const USERNAME_PATTERN = /^[a-zA-Z0-9-]{1,39}$/;
 
 const sanitizeMarkdown = (markdown) => {
@@ -44,7 +44,7 @@ const Home = () => {
     setError("");
 
     try {
-      const res = await fetch(`${API_BASE_URL}/compare`, {
+      const res = await fetch('/compare', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userA: trimmedProfile1, userB: trimmedProfile2 }),
