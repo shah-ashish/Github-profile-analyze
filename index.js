@@ -15,10 +15,10 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 connectToDb();
-
+app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors({ origin: "*" }));
-app.use(express.json());
+
 
 const clientDistPath = path.join(__dirname, "client", "dist");
 
