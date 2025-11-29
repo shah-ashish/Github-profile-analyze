@@ -27,25 +27,26 @@ app.use(express.static(clientDistPath));
 
 app.post("/compare", async (req, res) => {
     try {
+        await connectToDb();   // ⭐ CONNECT HERE
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         let apiCount = await ApiControl.findOne({ date: today });
-
         if (!apiCount) apiCount = new ApiControl({ date: today, count: 0 });
 
         if (apiCount.count >= 7) {
+            await disconnectDb(); // ⭐ DISCONNECT BEFORE RETURN
             return res.status(429).json({
                 success: false,
                 error: "API call limit reached for today. Try again tomorrow."
             });
         }
 
-    
         const { userA, userB } = req.body;
-           console.log(userA," ",userB);
-           
+
         if (!userA || !userB) {
+            await disconnectDb();
             return res.status(400).json({ message: "Both userA and userB are required." });
         }
 
@@ -54,12 +55,17 @@ app.post("/compare", async (req, res) => {
         apiCount.count += 1;
         await apiCount.save();
 
+        await disconnectDb();  // ⭐ DISCONNECT AFTER SAVE
+
         res.json(result);
+
     } catch (err) {
         console.error(err);
+        await disconnectDb();  // disconnect on error too
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
+
 
 // ⭐ Catch-all route for React Router
 app.get(/^\/.*/, (req, res) => {
