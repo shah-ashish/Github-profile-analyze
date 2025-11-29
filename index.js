@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 5000;
 
 const app = express();
-connectToDb();
+
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors({ origin: "*" }));
@@ -27,8 +27,6 @@ app.use(express.static(clientDistPath));
 
 app.post("/compare", async (req, res) => {
     try {
-        await connectToDb();   // ⭐ CONNECT HERE
-
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
