@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { compareGitHubProfilesWithGemini } from "./Compare.js";
-import { connectToDb } from "./Db.js";
+import { connectToDb ,disconnectDb} from "./Db.js";
 import ApiControl from "./Schema.js";
 
 dotenv.config();
@@ -27,6 +27,8 @@ app.use(express.static(clientDistPath));
 
 app.post("/compare", async (req, res) => {
     try {
+        await connectToDb();   // ⭐ CONNECT HERE
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -63,6 +65,7 @@ app.post("/compare", async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
+
 
 
 // ⭐ Catch-all route for React Router
