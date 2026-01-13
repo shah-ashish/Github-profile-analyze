@@ -1,14 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 dotenv.config();
-import fs from "fs";
 
 import { scrapeTwoGitHubUsers } from "./PortfolioDataFetch.js";
 
-export async function compareGitHubProfilesWithGemini(a,b) {
-  const { userA, userB } = await scrapeTwoGitHubUsers(
- a,b
-  );
+export async function compareGitHubProfilesWithGemini(a, b) {
+  const { userA, userB } = await scrapeTwoGitHubUsers(a, b);
 
   try {
     if (!userA || !userB) {
@@ -21,142 +18,150 @@ export async function compareGitHubProfilesWithGemini(a,b) {
       model: process.env.LLM_MODEL,
     });
 
-    // Prepare prompt for Markdown (README friendly) result
+    // NEW: Enhanced prompt for structured JSON output
     const prompt = `
-You are an expert GitHub profile evaluator. You will receive the scraped JSON data of two GitHub users.
+You are an expert GitHub profile analyzer. Analyze the two GitHub users and return a STRICT JSON response for data visualization.
 
-Your job:
+**CRITICAL:** Return ONLY valid JSON. No markdown, no code blocks, no preamble.
 
----
-## 1️⃣ IDENTITIES  
-Always refer to users by their Username, NOT "userA/userB".
+Users:
+- **User A:** ${userA.username || userA.login || "userA"}
+- **User B:** ${userB.username || userB.login || "userB"}
 
-Let:
-- **User A Username:** ${userA.username || userA.login || "userA"}
-- **User B Username:** ${userB.username || userB.login || "userB"}
+Analyze these data points and return JSON in this EXACT structure:
 
-Use these names throughout the report.
+{
+  "usernames": {
+    "userA": "${userA.username || userA.login || "userA"}",
+    "userB": "${userB.username || userB.login || "userB"}"
+  },
+  "overview": {
+    "userA": "One sentence summary",
+    "userB": "One sentence summary"
+  },
+  "metrics": {
+    "activity": {
+      "userA": 0-10,
+      "userB": 0-10,
+      "winner": "userA or userB",
+      "insight": "Why this winner (max 15 words)"
+    },
+    "codeQuality": {
+      "userA": 0-10,
+      "userB": 0-10,
+      "winner": "userA or userB",
+      "insight": "Why this winner (max 15 words)"
+    },
+    "consistency": {
+      "userA": 0-10,
+      "userB": 0-10,
+      "winner": "userA or userB",
+      "insight": "Why this winner (max 15 words)"
+    },
+    "documentation": {
+      "userA": 0-10,
+      "userB": 0-10,
+      "winner": "userA or userB",
+      "insight": "Why this winner (max 15 words)"
+    },
+    "techStack": {
+      "userA": 0-10,
+      "userB": 0-10,
+      "winner": "userA or userB",
+      "insight": "Why this winner (max 15 words)"
+    },
+    "socialProof": {
+      "userA": 0-10,
+      "userB": 0-10,
+      "winner": "userA or userB",
+      "insight": "Why this winner (max 15 words)"
+    }
+  },
+  "topLanguages": {
+    "userA": [{"name": "JavaScript", "percentage": 45}, {"name": "Python", "percentage": 30}],
+    "userB": [{"name": "Java", "percentage": 60}, {"name": "C++", "percentage": 25}]
+  },
+  "statistics": {
+    "userA": {
+      "repos": 0,
+      "followers": 0,
+      "following": 0,
+      "stars": 0,
+      "contributions": 0
+    },
+    "userB": {
+      "repos": 0,
+      "followers": 0,
+      "following": 0,
+      "stars": 0,
+      "contributions": 0
+    }
+  },
+  "overallScores": {
+    "headToHead": {
+      "userA": 0-10,
+      "userB": 0-10,
+      "verdict": "One sentence explaining winner"
+    },
+    "absolute": {
+      "userA": 0-10,
+      "userB": 0-10,
+      "explanation": "One sentence explaining scores vs perfect profile"
+    }
+  },
+  "strengths": {
+    "userA": ["strength 1", "strength 2", "strength 3"],
+    "userB": ["strength 1", "strength 2", "strength 3"]
+  },
+  "weaknesses": {
+    "userA": ["weakness 1", "weakness 2"],
+    "userB": ["weakness 1", "weakness 2"]
+  },
+  "missingElements": {
+    "userA": ["missing item 1", "missing item 2"],
+    "userB": ["missing item 1", "missing item 2"]
+  },
+  "improvements": {
+    "userA": ["actionable tip 1", "actionable tip 2", "actionable tip 3"],
+    "userB": ["actionable tip 1", "actionable tip 2", "actionable tip 3"]
+  },
+  "finalVerdict": "2-3 sentence final comparison"
+}
 
----
-## 2️⃣ TASK  
-Generate a **non-generic**, **deeply personalized**, **data-dependent** GitHub comparison report in **README.md style layout**.
+# USER DATA
 
-Everything MUST be based STRICTLY on the users' scraped data:
-- repos  
-- languages  
-- bio  
-- followers  
-- following  
-- stars  
-- pinned projects  
-- commit history  
-- contributions  
-- profile completeness  
-- project quality  
-- README quality  
-- coding patterns  
-- consistency  
-- activity timeline  
-
-No filler text.  
-No assumptions unless logically inferred from missing/null fields.
-
----
-## 3️⃣ STRUCTURE  
-Output must be **clean markdown**, in this order:
-
-# 🔍 GitHub Profile Comparison Report  
-
-## 🧑‍💻 Profile Overview  
-Short, personalized summary for each username.
-
-## ⚔️ Head-to-Head Comparison  
-A detailed table comparing both users across:
-- Activity level  
-- Repo quality  
-- Consistency  
-- Tech stack depth  
-- Profile completeness  
-- Writing quality  
-- Stars, followers, social proof  
-- Highlights (strongest parts)
-- Weak points (actual weaknesses from data)  
-
-Make it very specific.
-
-## ⭐ Dynamic Strengths & Weaknesses  
-### ${userA.username}
-- Strengths:
-- Weaknesses:
-
-### ${userB.username}
-- Strengths:
-- Weaknesses:
-
-## 📊 Scoring (Dynamic, Not Generic)
-Give 2 types of scores:
-
-### **1. Head-to-Head Score (0–10)**
-Score how much **${userA.username} outperforms ${
-      userB.username
-    }**, OR vice-versa.  
-Always explain WHY with actual data.
-
-### **2. Absolute Quality Score (0–10)**
-Score each user vs a **Perfect GitHub Profile**, based on:
-- Profile completeness  
-- README quality  
-- Repo structure  
-- Code quality  
-- Contribution graph  
-- Tech stack depth  
-- Project originality  
-- Documentation  
-- Professional presentation  
-
-Example output format:
-- **${userA.username}: 7.5/10**
-- **${userB.username}: 5.8/10**
-
-## 🚀 Improvement Suggestions (Dynamic)
-Provide **personalized, actionable** improvement steps for each user.  
-Avoid generic advice.  
-Base every point on the actual JSON data.
-
-## 📝 Missing Elements Checklist  
-Tell both users what key elements are missing from their profile explicitly:
-- No pinned projects?  
-- No README?  
-- Empty bio?  
-- No languages?  
-- No contributions?  
-- No stars or forks?  
-- No real projects?  
-
-## 🎯 Final Verdict  
-A short, sharp, dynamic final comparison based ONLY on the scraped data.
-
----
-
-# USER DATA (Raw JSON)
-
-## ${userA.username}
+## ${userA.username || "userA"}
 ${JSON.stringify(userA, null, 2)}
 
-## ${userB.username}
+## ${userB.username || "userB"}
 ${JSON.stringify(userB, null, 2)}
 
-output must be in markdown format
-replace userA and userB with ther username
-Generate the final report now.
+Return ONLY the JSON object. No other text.In Response Replace UserA and UserB with username
 `;
 
     // Send to Gemini
     const result = await model.generateContent(prompt);
+    let responseText = result.response.text();
+    
+    // Clean up response - remove markdown code blocks if present
+    responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    // Parse JSON response
+    let analyticsData;
+    try {
+      analyticsData = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("[ERROR] Failed to parse LLM response as JSON:", parseError);
+      console.error("Raw response:", responseText);
+      throw new Error("LLM returned invalid JSON format");
+    }
 
+     console.log(analyticsData);
+     
     return {
       success: true,
-      comparison: result.response.text(),
+      analyticsData: analyticsData,
+      rawComparison: responseText // Keep raw text as backup
     };
   } catch (err) {
     console.error("[ERROR] Gemini comparison failed:", err);
@@ -166,5 +171,3 @@ Generate the final report now.
     };
   }
 }
-
-
