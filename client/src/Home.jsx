@@ -25,12 +25,12 @@ const SimpleRadarChart = ({ data, usernames }) => {
     };
   };
 
-  const userAPoints = metrics.map(([_, val], i) => getPoint(val.userA, i));
-  const userBPoints = metrics.map(([_, val], i) => getPoint(val.userB, i));
-  const labelPoints = metrics.map((_, i) => getPoint(10.5, i));
+  const userAPoints = metrics?.map(([_, val], i) => getPoint(val.userA, i));
+  const userBPoints = metrics?.map(([_, val], i) => getPoint(val.userB, i));
+  const labelPoints = metrics?.map((_, i) => getPoint(10.5, i));
 
-  const pathA = `M ${userAPoints.map(p => `${p.x},${p.y}`).join(' L ')} Z`;
-  const pathB = `M ${userBPoints.map(p => `${p.x},${p.y}`).join(' L ')} Z`;
+  const pathA = `M ${userAPoints?.map(p => `${p.x},${p.y}`).join(' L ')} Z`;
+  const pathB = `M ${userBPoints?.map(p => `${p.x},${p.y}`).join(' L ')} Z`;
 
   return (
     <div className="flex flex-col items-center">

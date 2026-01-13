@@ -136,7 +136,7 @@ ${JSON.stringify(userA, null, 2)}
 ## ${userB.username || "userB"}
 ${JSON.stringify(userB, null, 2)}
 
-Return ONLY the JSON object. No other text.In Response Replace UserA and UserB with username
+Return ONLY the JSON object. No other text.
 `;
 
     // Send to Gemini
